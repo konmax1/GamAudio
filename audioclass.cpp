@@ -1,113 +1,75 @@
-#include "audioclass.h"
+#include "AudioClass.h"
 #include "qdebug.h"
 
-AudioClass::AudioClass(QObject *parent )
+AudioClassUSBL::AudioClassUSBL(QObject *parent )
 	: QObject(parent)
 {
+    AudioClassUSBL();
 
-	m_audioOutput = new QAudioOutput(m_device, m_format, this);
 }
 
-AudioClass::AudioClass(){
-}
-
-AudioClass::~AudioClass()
+bool AudioClassUSBL::getIsActiveAudio()
 {
+    return isActiveAudio;
 }
 
-void AudioClass::createAudioList() {
-	qDebug() << "Create List ";
-    clearAudioList();
-	for (QAudioDeviceInfo &deviceInfo : QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        addElement(deviceInfo.deviceName());
-    }
-
-
-}
-
-int AudioClass::count()
+void AudioClassUSBL::setIsActiveAudio(bool &value)
 {
-    return m_count;
+    isActiveAudio = value;
 }
 
-void AudioClass::setCount(int cnt)
+void AudioClassUSBL::reInitAudioDev()
 {
-    if (cnt != m_count)
-    {
-        m_count = cnt;
-        emit countChanged();
-    }
-}
+	if (m_audioOutput) {
+		m_audioOutput->stop();
+		delete m_audioOutput;
 
-const QStringList AudioClass::comboList()
-{
-    return m_comboList;
-}
-
-void AudioClass::setComboList(const QStringList &comboList)
-{
-
-    if (m_comboList != comboList)
-    {
-        m_comboList = comboList;
-        emit comboListChanged();
-    }
-
-}
-
-void AudioClass::addElement(const QString &element)
-{
-    m_comboList.append(element);
-    emit comboListChanged();
-    setCount(m_comboList.count());
-    emit countChanged();
-}
-
-void AudioClass::removeElement(int index)
-{
-    if (index < m_comboList.count())
-    {
-        m_comboList.removeAt(index);
-        emit comboListChanged();
-        setCount(m_comboList.count());
-        emit countChanged();
-    }
-}
-
-void AudioClass::clearAudioList()
-{
-    m_comboList.clear();
-    emit comboListChanged();
-    setCount(m_comboList.count());
-    emit countChanged();
-}
-
-void AudioClass::setAudioOutputDevice(QString dev)
-{
-	if (dev == "")
-		return;
-	qDebug() << "Current Audio = " << dev ;
-	QAudioDeviceInfo m_device;
-	for (QAudioDeviceInfo &deviceInfo : QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-		if (deviceInfo.deviceName == dev) {
-			m_device = deviceInfo;
-			break;
-		}
 	}
-	QAudioFormat format;
-	format.setSampleRate(44100);
-	format.setChannelCount(1);
-	format.setSampleSize(16);
-	format.setCodec("audio/pcm");
-	format.setByteOrder(QAudioFormat::LittleEndian);
-	format.setSampleType(QAudioFormat::SignedInt);
-	delete m_audioOutput;
-	m_audioOutput = new QAudioOutput(m_device, format, this);
+
+
+	m_format.setSampleRate(freqAudioDiskr);
+	m_format.setChannelCount(1);
+	m_format.setSampleSize(16);
+	m_format.setCodec("audio/pcm");
+	m_format.setByteOrder(QAudioFormat::LittleEndian);
+	m_format.setSampleType(QAudioFormat::SignedInt);
+
+	m_device = QAudioDeviceInfo::defaultOutputDevice();
+	m_audioOutput = new QAudioOutput(m_device, m_format, this);
 	m_audioOutput->setBufferSize(56000);
+	m_output = m_audioOutput->start();
+}
+
+AudioClassUSBL::AudioClassUSBL(){
+
+	m_audioOutput = nullptr;
+	freqAudioDiskr = 9600;
+	reInitAudioDev();
+
+}
+
+
+void AudioClassUSBL::setActiveAudio(bool _active, qint32 _freqD)
+{
+	isActiveAudio = _active;
+	freqAudioDiskr = _freqD;
+	if (isActiveAudio)
+		reInitAudioDev();
+
 }
 
 
+AudioClassUSBL::~AudioClassUSBL()
+{
+}
 
+
+void AudioClassUSBL::WriteAudioData(quint16 nADC, quint16 *mas)
+{
+	if (m_audioOutput && m_audioOutput->state() != QAudio::StoppedState) {
+		m_output->write((const char *)mas, 2 * nADC);
+	}
+}
 
 
 

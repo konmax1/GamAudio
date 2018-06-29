@@ -7,37 +7,31 @@
 #include <QStringList>
 #include <QAudioOutput>
 
-class AudioClass : public QObject
+class AudioClassUSBL : public QObject
 {
 	Q_OBJECT
-
-    Q_PROPERTY(QStringList comboList READ comboList WRITE setComboList NOTIFY comboListChanged)
-    Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
 private:
-    QStringList m_comboList;
-    int         m_count;
 
+	QAudioDeviceInfo m_device;
+	QAudioFormat m_format;
 	QAudioOutput *m_audioOutput;
 	QIODevice *m_output; // not owned
+    bool isActiveAudio;
+	double freqAudioDiskr;
 
+	void reInitAudioDev();
 public:
-	AudioClass();
-	AudioClass(QObject *parent );
-	~AudioClass();
+    AudioClassUSBL();
+    AudioClassUSBL(QObject *parent );
+    ~AudioClassUSBL();
 
     QStringListModel audioListDevices;
-    const QStringList comboList();
-    void setComboList(const QStringList &comboList);
-    int count();
-    void setCount(int cnt);
-    Q_INVOKABLE void addElement(const QString &element);
-    Q_INVOKABLE void removeElement(int index);
-    Q_INVOKABLE void clearAudioList();
+
+
+	bool getIsActiveAudio();
+    void setIsActiveAudio(bool &value);
 
 public slots:
-	void createAudioList();
-	void setAudioOutputDevice(QString dev);
-signals:
-    void comboListChanged();
-    void countChanged();
+    void WriteAudioData(quint16 nADC, quint16 *mas);
+	void setActiveAudio(bool _active, qint32 _freqD);
 };
