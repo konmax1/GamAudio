@@ -9,7 +9,6 @@
 #ifndef UI_MAINWINDOW_H
 #define UI_MAINWINDOW_H
 
-#include <MainWindow.h>
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
@@ -41,11 +40,12 @@ public:
     QPushButton *pushButtonStartADC;
     QPushButton *pushButtonStopADC;
     QGroupBox *groupBox_2;
-    QCheckBox *checkBoxCharts;
     QCheckBox *checkBox_Audio;
-    QSpinBox *spinBoxLenCharts;
     QSpinBox *spinBoxFreqAudio;
-    ChartView *charts_templ;
+    QSpinBox *spinBoxFreqSignal;
+    QLabel *labelFreq_2;
+    QPushButton *pushButtonFileClear;
+    QPushButton *pushButtonFileWrite;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -53,7 +53,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(824, 612);
+        MainWindow->resize(318, 469);
         QFont font;
         font.setFamily(QStringLiteral("Times New Roman"));
         font.setPointSize(12);
@@ -108,43 +108,41 @@ public:
         groupBox_2 = new QGroupBox(centralwidget);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
         groupBox_2->setMinimumSize(QSize(300, 200));
-        checkBoxCharts = new QCheckBox(groupBox_2);
-        checkBoxCharts->setObjectName(QStringLiteral("checkBoxCharts"));
-        checkBoxCharts->setGeometry(QRect(20, 30, 171, 31));
         checkBox_Audio = new QCheckBox(groupBox_2);
         checkBox_Audio->setObjectName(QStringLiteral("checkBox_Audio"));
-        checkBox_Audio->setGeometry(QRect(20, 70, 131, 31));
-        spinBoxLenCharts = new QSpinBox(groupBox_2);
-        spinBoxLenCharts->setObjectName(QStringLiteral("spinBoxLenCharts"));
-        spinBoxLenCharts->setGeometry(QRect(200, 31, 91, 31));
-        spinBoxLenCharts->setMinimum(1);
-        spinBoxLenCharts->setMaximum(1000000);
-        spinBoxLenCharts->setSingleStep(10000);
-        spinBoxLenCharts->setValue(300000);
-        spinBoxLenCharts->setDisplayIntegerBase(10);
+        checkBox_Audio->setGeometry(QRect(20, 30, 131, 31));
         spinBoxFreqAudio = new QSpinBox(groupBox_2);
         spinBoxFreqAudio->setObjectName(QStringLiteral("spinBoxFreqAudio"));
-        spinBoxFreqAudio->setGeometry(QRect(200, 70, 91, 31));
+        spinBoxFreqAudio->setGeometry(QRect(190, 30, 91, 31));
         spinBoxFreqAudio->setMinimum(1);
         spinBoxFreqAudio->setMaximum(200000);
         spinBoxFreqAudio->setSingleStep(1000);
         spinBoxFreqAudio->setValue(9600);
         spinBoxFreqAudio->setDisplayIntegerBase(10);
+        spinBoxFreqSignal = new QSpinBox(groupBox_2);
+        spinBoxFreqSignal->setObjectName(QStringLiteral("spinBoxFreqSignal"));
+        spinBoxFreqSignal->setGeometry(QRect(190, 70, 91, 31));
+        spinBoxFreqSignal->setMinimum(1);
+        spinBoxFreqSignal->setMaximum(10000);
+        spinBoxFreqSignal->setSingleStep(100);
+        spinBoxFreqSignal->setValue(6000);
+        spinBoxFreqSignal->setDisplayIntegerBase(10);
+        labelFreq_2 = new QLabel(groupBox_2);
+        labelFreq_2->setObjectName(QStringLiteral("labelFreq_2"));
+        labelFreq_2->setGeometry(QRect(40, 70, 121, 31));
+        pushButtonFileClear = new QPushButton(groupBox_2);
+        pushButtonFileClear->setObjectName(QStringLiteral("pushButtonFileClear"));
+        pushButtonFileClear->setGeometry(QRect(10, 110, 121, 31));
+        pushButtonFileWrite = new QPushButton(groupBox_2);
+        pushButtonFileWrite->setObjectName(QStringLiteral("pushButtonFileWrite"));
+        pushButtonFileWrite->setGeometry(QRect(160, 110, 121, 31));
 
         gridLayout->addWidget(groupBox_2, 1, 0, 1, 1);
-
-        charts_templ = new ChartView(centralwidget);
-        charts_templ->setObjectName(QStringLiteral("charts_templ"));
-        charts_templ->setMinimumSize(QSize(500, 400));
-        charts_templ->setFrameShape(QFrame::NoFrame);
-        charts_templ->setFrameShadow(QFrame::Raised);
-
-        gridLayout->addWidget(charts_templ, 0, 1, 2, 1);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 824, 20));
+        menubar->setGeometry(QRect(0, 0, 318, 20));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QStringLiteral("statusbar"));
@@ -167,12 +165,14 @@ public:
         pushButtonStartADC->setText(QApplication::translate("MainWindow", "\320\241\321\202\320\260\321\200\321\202", nullptr));
         pushButtonStopADC->setText(QApplication::translate("MainWindow", "\320\241\321\202\320\276\320\277", nullptr));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "\320\235\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270 \321\200\320\260\320\261\320\276\321\202\321\213", nullptr));
-        checkBoxCharts->setText(QApplication::translate("MainWindow", "\320\236\321\202\320\276\320\261\321\200\320\260\320\266\320\265\320\275\320\270\320\265 \320\263\321\200\320\260\321\204\320\270\320\272\320\260", nullptr));
         checkBox_Audio->setText(QApplication::translate("MainWindow", "\320\222\321\213\320\262\320\276\320\264 \320\267\320\262\321\203\320\272\320\260", nullptr));
-        spinBoxLenCharts->setSuffix(QString());
-        spinBoxLenCharts->setPrefix(QString());
         spinBoxFreqAudio->setSuffix(QString());
         spinBoxFreqAudio->setPrefix(QString());
+        spinBoxFreqSignal->setSuffix(QString());
+        spinBoxFreqSignal->setPrefix(QString());
+        labelFreq_2->setText(QApplication::translate("MainWindow", "\320\247\320\260\321\201\321\202\320\276\321\202\320\260 \321\201\320\270\320\263\320\275\320\260\320\273\320\260", nullptr));
+        pushButtonFileClear->setText(QApplication::translate("MainWindow", "\320\236\321\207\320\270\321\201\321\202\320\270\321\202\321\214", nullptr));
+        pushButtonFileWrite->setText(QApplication::translate("MainWindow", "\320\227\320\260\320\277\320\270\321\201\320\260\321\202\321\214", nullptr));
     } // retranslateUi
 
 };

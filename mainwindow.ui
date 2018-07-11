@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>824</width>
-    <height>612</height>
+    <width>318</width>
+    <height>469</height>
    </rect>
   </property>
   <property name="font">
@@ -188,24 +188,11 @@
       <property name="title">
        <string>Настройки работы</string>
       </property>
-      <widget class="QCheckBox" name="checkBoxCharts">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>171</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Отображение графика</string>
-       </property>
-      </widget>
       <widget class="QCheckBox" name="checkBox_Audio">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>70</y>
+         <y>30</y>
          <width>131</width>
          <height>31</height>
         </rect>
@@ -214,42 +201,11 @@
         <string>Вывод звука</string>
        </property>
       </widget>
-      <widget class="QSpinBox" name="spinBoxLenCharts">
-       <property name="geometry">
-        <rect>
-         <x>200</x>
-         <y>31</y>
-         <width>91</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-       <property name="prefix">
-        <string comment="12" extracomment="12"/>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>1000000</number>
-       </property>
-       <property name="singleStep">
-        <number>10000</number>
-       </property>
-       <property name="value">
-        <number>300000</number>
-       </property>
-       <property name="displayIntegerBase">
-        <number>10</number>
-       </property>
-      </widget>
       <widget class="QSpinBox" name="spinBoxFreqAudio">
        <property name="geometry">
         <rect>
-         <x>200</x>
-         <y>70</y>
+         <x>190</x>
+         <y>30</y>
          <width>91</width>
          <height>31</height>
         </rect>
@@ -276,22 +232,76 @@
         <number>10</number>
        </property>
       </widget>
-     </widget>
-    </item>
-    <item row="0" column="1" rowspan="2">
-     <widget class="ChartView" name="charts_templ">
-      <property name="minimumSize">
-       <size>
-        <width>500</width>
-        <height>400</height>
-       </size>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
+      <widget class="QSpinBox" name="spinBoxFreqSignal">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>70</y>
+         <width>91</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="suffix">
+        <string/>
+       </property>
+       <property name="prefix">
+        <string comment="12" extracomment="12"/>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>6000</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelFreq_2">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>70</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Частота сигнала</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButtonFileClear">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Очистить</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButtonFileWrite">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>110</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Записать</string>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -301,21 +311,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>824</width>
+     <width>318</width>
      <height>20</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ChartView</class>
-   <extends>QFrame</extends>
-   <header location="global">MainWindow.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

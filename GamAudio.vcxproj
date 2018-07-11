@@ -192,7 +192,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audioclass.cpp" />
-    <ClCompile Include="datachart.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="recieverdata.cpp" />
@@ -200,8 +199,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="audioclass.h">
-    </QtMoc>
-    <QtMoc Include="datachart.h">
     </QtMoc>
     <QtMoc Include="mainwindow.h">
     </QtMoc>

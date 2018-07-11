@@ -1,3 +1,1 @@
-﻿  datachart.cpp
-e:\svn\project\gamaudio\datachart.cpp(116): warning C4100: _series: неиспользованный формальный параметр
-  GamAudio.vcxproj -> E:\SVN\Project\GamAudio\debug\GamAudio.exe
+﻿  GamAudio.vcxproj -> E:\SVN\Project\GamAudio\debug\GamAudio.exe

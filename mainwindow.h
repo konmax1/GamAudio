@@ -4,34 +4,13 @@
 #include <QMainWindow>
 
 #include "audioclass.h"
-#include "datachart.h"
 #include "usblnetworkdata.h"
 #include <QThreadPool>
 #include "recieverdata.h"
-
+#include "qfile.h"
 namespace Ui {
 class MainWindow;
 }
-
-class ChartView : public QChartView
-//![1]
-{
-public:
-    ChartView(QWidget *parent = 0);
-
-//![2]
-protected:
-    bool viewportEvent(QEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-//![2]
-
-private:
-    bool m_isTouching;
-};
-
 
 class MainWindow : public QMainWindow
 {
@@ -40,7 +19,6 @@ class MainWindow : public QMainWindow
 public:
 
     AudioClassUSBL audio;
-    dataChart chartV;
     RecieverData recData;
     USBLNetworkData networkData;
 
@@ -49,18 +27,19 @@ public:
 
 private slots:
     void on_pushButtonStartADC_clicked();
-
-    void on_checkBoxCharts_stateChanged(int arg1);
-
+	
     void on_checkBox_Audio_stateChanged(int arg1);
 
+    void on_spinBoxFreqSignal_valueChanged(int arg1);
+
+    void on_pushButtonFileClear_clicked();
+
+    void on_pushButtonFileWrite_clicked();
+
 private:
-
-
-    ChartView *charts;
-    Ui::MainWindow *ui;
+	Ui::MainWindow *ui;
     QThread threadPckts;
-	QThread threadCharts;
+    QThread threadProcdata;
 };
 
 #endif // MAINWINDOW_H

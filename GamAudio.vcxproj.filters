@@ -40,9 +40,6 @@
     <ClCompile Include="audioclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="datachart.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,9 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="audioclass.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="datachart.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="mainwindow.h">

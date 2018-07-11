@@ -1,4 +1,4 @@
-#include "AudioClass.h"
+#include "audioclass.h"
 #include "qdebug.h"
 
 AudioClassUSBL::AudioClassUSBL(QObject *parent )
@@ -48,7 +48,7 @@ AudioClassUSBL::AudioClassUSBL(){
 
 }
 
-
+
 void AudioClassUSBL::setActiveAudio(bool _active, qint32 _freqD)
 {
 	isActiveAudio = _active;

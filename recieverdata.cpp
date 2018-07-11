@@ -36,11 +36,23 @@ void RecieverData::setFreqDiskr(quint32 value)
     freqDiskr = value;
 }
 
+void RecieverData::clearDebugData()
+{
+	debugFileData.resize(0);
+}
+
 RecieverData::RecieverData(QObject *parent)
     : QObject(parent)
 {
 	freqDiskr = 300000;
-    delayLine.resize(GILBERT_POR + 1,0);
+    freqSignal = 6000;
+	freqval.resize(2);
+	freqval[0].freqWave = 36000;
+    freqval[0].delayLine.resize(freqDiskr/freqSignal);
+    freqval[1].freqWave = 39000;
+    freqval[1].delayLine.resize(freqDiskr/freqSignal);
+	counterThinning = 0;
+	delayLine.resize(GILBERT_POR + 1, 0);
 }
 
 RecieverData::~RecieverData()
@@ -66,43 +78,101 @@ double RecieverData::Gilbert(double & sample)
 	return res;
 }
 
-complex_double RecieverData::complexMult(double & re, double & im)
+QVector<debugDataFile>& RecieverData::getDataToWrite()
 {
-	complex_double cmplx;
-	double real = cos(2 * M_PI * 37500 * countFreq / freqDiskr);
-	double image = -sin(2 * M_PI * 37500 * countFreq / freqDiskr);
-	countFreq = (countFreq + 1) % freqDiskr;
-	cmplx.re = (re* real - im * image);
-	cmplx.im = (re*image + im * real);
-
-	return cmplx;
+	return debugFileData;
 }
 
+void RecieverData::setFreqSignal(const qint32 &value)
+{
+    freqSignal = value;
+}
+
+void RecieverData::getWave(int channel)
+{
+    if (channel >= freqval.size())
+        return;
+	freqVal * p;
+	p = &freqval[channel];
 
 
+	p->signal_freq.re =  cos(2 * M_PI * p->freqWave * p->count_freq / freqDiskr);
+	p->signal_freq.im = -sin(2 * M_PI * p->freqWave * p->count_freq / freqDiskr);
+	p->count_freq = (p->count_freq + 1) % freqDiskr;
+	
+}
+
+void RecieverData::complexMult(complex_double &_in, complex_double &_in2, complex_double & _out)
+{
+	_out.re = _in.re * _in2.re - _in.im * _in2.im;
+	_out.im = _in.re * _in2.im + _in.im * _in2.re;
+}
+
+complex_double RecieverData::complexSum(std::vector<complex_double>& _vect) {
+	complex_double res = { 0,0 };
+	for (volatile int i = 0; i < _vect.size(); i++) {
+		res.im = res.im + _vect[i].im;
+		res.re = res.re + _vect[i].re;
+	}
+	return res;
+}
+
+double RecieverData::complexAbs(complex_double & _cmplx)
+{
+	double res;
+	res = sqrt(_cmplx.im * _cmplx.im + _cmplx.re * _cmplx.re);
+	return res;
+}
 
 void RecieverData::addNewData(QVector<double> _vec) {
-	double sample;
-	double inner_prod;
+    double sample;
+	complex_double analit_signal;
 	complex_double cmplx;
-	QList <QVector<double> > vl;
-	QVector<double> v1, v2;// , v3;
-	//QVector<qint16> vS;
+	complex_double res[2];
+	double average;
+	double resD[2];
+	debugDataFile fileData;
 	for (volatile int i = 0; i < _vec.size(); i++) {
 		sample = _vec[i];
-		inner_prod = Gilbert(sample);
-		cmplx = complexMult(sample, inner_prod);
-		v1.append(cmplx.re);
-		v2.append(cmplx.im);
-		/*v3.append(_vec[i]);
-		vS.append(_vec[i]);*/
-	}
 
-	vl.append(v1);
-	vl.append(v2);
-	/*vl.append(v3);*/
-	
-	emit sendChartData(vl);
+		
+
+		analit_signal.im = Gilbert(sample);
+		analit_signal.re = sample;
+		
+		fileData.analitIm = analit_signal.im;
+		fileData.analitRe = analit_signal.re;
+
+		for (volatile int k = 0; k < freqval.size(); k++) {
+			getWave(k);
+			complexMult(analit_signal,freqval[k].signal_freq,cmplx);
+
+
+			memmove(&freqval[k].delayLine[1], &freqval[k].delayLine[0], (freqval[k].delayLine.size() - 1) * sizeof(complex_double));
+			freqval[k].delayLine[0] = cmplx;
+
+			res[k] = complexSum(freqval[k].delayLine);
+			resD[k] = complexAbs(res[k]);
+		}
+		if (resD[1] > resD[0])
+			average = 1;
+		else
+			average = 0;
+		//average = resD[1] - resD[0];
+
+		fileData.adc = average;
+
+		counterThinning++;
+		if (counterThinning == 25) {
+			thinningSignal.append(average);
+		}
+		if (counterThinning >= 50) {
+			thinningSignal.append(average);
+			counterThinning = 0;
+		}
+		debugFileData.append(fileData);
+		//cmplx = complexMult(analit_signal);
+	}
 
 }
 

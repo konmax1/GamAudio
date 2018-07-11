@@ -98,7 +98,7 @@ USBLNetworkData::~USBLNetworkData(){
 }
 void USBLNetworkData::readyRead(){
 	netBuf* p = (netBuf*)datagram.data();
-	int32_t sizes;
+    int64_t sizes;
 	do {
 		udpsock->readDatagram(datagram.data(), 5000, &address);
 		if (p->header.type == tADCsmpl) {

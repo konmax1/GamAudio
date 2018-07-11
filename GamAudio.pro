@@ -21,7 +21,6 @@ LIBS+= -lws2_32
 SOURCES += \
         main.cpp \
     audioclass.cpp \
-    datachart.cpp \
     usblnetworkdata.cpp \
     recieverdata.cpp \
     mainwindow.cpp
@@ -38,7 +37,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     audioclass.h \
-    datachart.h \
     usblnetworkdata.h \
     recieverdata.h \
     mainwindow.h
