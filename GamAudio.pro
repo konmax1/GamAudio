@@ -23,23 +23,33 @@ SOURCES += \
     audioclass.cpp \
     usblnetworkdata.cpp \
     recieverdata.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    array.cpp \
+    reedsolomon.cpp
 
 RESOURCES +=
-
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-
-
 HEADERS += \
     audioclass.h \
     usblnetworkdata.h \
     recieverdata.h \
-    mainwindow.h
+    mainwindow.h \
+    array.h \
+    reedsolomon.h \
+    rsparameters.h
 
 FORMS += \
     mainwindow.ui
+
+
+
+
+unix|win32: LIBS += -L$$PWD/codec2-lib/ -llibcodec2.dll
+
+INCLUDEPATH += $$PWD/codec2-lib
+DEPENDPATH += $$PWD/codec2-lib

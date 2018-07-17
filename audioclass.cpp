@@ -64,7 +64,7 @@ AudioClassUSBL::~AudioClassUSBL()
 }
 
 
-void AudioClassUSBL::WriteAudioData(quint16 nADC, quint16 *mas)
+void AudioClassUSBL::WriteAudioData(qint32 nADC, qint16 *mas)
 {
 	if (m_audioOutput && m_audioOutput->state() != QAudio::StoppedState) {
 		m_output->write((const char *)mas, 2 * nADC);
@@ -72,6 +72,9 @@ void AudioClassUSBL::WriteAudioData(quint16 nADC, quint16 *mas)
 }
 
 
+void AudioClassUSBL::WriteAudioData(QVector<qint16> vect){
+    WriteAudioData(vect.size(),vect.data());
+}
 
 
 

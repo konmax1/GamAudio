@@ -1,5 +1,4 @@
 #include "recieverdata.h"
-
 /*double GILBERT_COEFF[GILBERT_POR + 1] = { 4.54486433486115e-05, -0.0319136045611685, -3.31277815639291e-05,
 -0.0260478358874455, -1.59427170179442e-06, -0.0373284021357407, 3.46942587567515e-06, -0.0531107459937533,
 -1.03378562696214e-06, -0.0766995375013512, -5.96683448033596e-06, -0.116853826766850, 1.66624629076986e-05,
@@ -26,6 +25,15 @@ double GILBERT_COEFF[GILBERT_POR + 1] = { 1.12766257565378e-15, -0.0001304761389
 0.00130330168977613, -4.33981913868786e-15, 0.000883857088375641, -2.80690169882469e-15, 0.000575250463727568, -2.46669069323428e-15,
 0.000354719283426647, -1.30697021891335e-15, 0.000202974874492264, -1.08440643400614e-15, 0.000130476138946637, -1.12766257565378e-15 };
 
+double StartPSP_In_255[255] = { 1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, 1, 1,
+-1, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, -1, 1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 
+-1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, -1, -1, 1, -1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1,
+-1, -1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, -1, 1, 1,
+1, -1, -1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, -1, -1, 1,
+1, -1, -1, 1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, -1, -1, 1, 1, 1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1,
+1, 1, -1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, -1, -1, 1, -1, 1, -1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 
+-1, -1, 1, -1, 1, 1, 1, -1, 1 };
+
 quint32 RecieverData::getFreqDiskr()
 {
     return freqDiskr;
@@ -44,6 +52,7 @@ void RecieverData::clearDebugData()
 RecieverData::RecieverData(QObject *parent)
     : QObject(parent)
 {
+	reedsolomon.init();
 	freqDiskr = 300000;
     freqSignal = 6000;
 	freqval.resize(2);
@@ -53,6 +62,8 @@ RecieverData::RecieverData(QObject *parent)
     freqval[1].delayLine.resize(freqDiskr/freqSignal);
 	counterThinning = 0;
 	delayLine.resize(GILBERT_POR + 1, 0);
+
+    audiocodec = codec2_create(CODEC2_MODE_1200);
 }
 
 RecieverData::~RecieverData()
@@ -124,6 +135,116 @@ double RecieverData::complexAbs(complex_double & _cmplx)
 	return res;
 }
 
+double RecieverData::scalar(double & in1, double & in2,int32_t size)
+{
+	double res = 0;
+	double *p1 = &in1;
+	double *p2 = &in2;
+	for (volatile int i = 0; i < size; i++) {
+		res += *p1 * *p2;
+		p1++;
+		p2++;
+	}
+	return res;
+}
+
+#define SET_BIT(REG, BIT)     ((REG) |= (BIT))
+#define CLEAR_BIT(REG, BIT)   ((REG) &= ~(BIT))
+#define READ_BIT(REG, BIT)    ((REG) & (BIT))
+
+uint16_t reedSolomonInput[8][63];
+
+
+void RecieverData::processingThinData()
+{
+	static int stateProc = 0;
+	static double maxscalar = 0;
+	double scalar1, scalar2;
+	std::vector<double> *p_thin;
+	if (stateProc == 0) {
+		for (volatile int i = 0; i < thinningSignal2.size(); i++) {//thinningSignal2 == thinningSignal1 
+			scalar1 = scalar(*thinningSignal1.data(), StartPSP_In_255[0], 255);
+			scalar2 = scalar(*thinningSignal2.data(), StartPSP_In_255[0], 255);
+			if (scalar1 >= scalar2) {
+				maxscalar = scalar1;
+				if (maxscalar > 120) {
+					stateProc = 1;
+					p_thin = &thinningSignal1;
+					break;
+				}
+			}
+			else {
+				maxscalar = scalar2;
+				if (maxscalar > 120) {
+					stateProc = 2;
+					p_thin = &thinningSignal2;
+					break;
+				}
+			}
+			thinningSignal1.erase(thinningSignal1.begin());
+			thinningSignal2.erase(thinningSignal2.begin());
+		}
+		thinningSignal1.erase(thinningSignal1.begin(), thinningSignal1.begin() + 20);
+		thinningSignal2.erase(thinningSignal2.begin(), thinningSignal2.begin() + 20);
+	}
+	if (stateProc > 0) {
+		//need 3024 bits
+		if (stateProc == 1) {
+			if (thinningSignal1.size() >= 3024) {
+				for (volatile int i = 0; i < 3024; i++) {
+					thinningSignal1[i] = (thinningSignal1[i] + 1) / 2;
+				}
+				volatile int cntRS = 0;
+				for (volatile int i = 0; i < 8; i++) {
+					for (volatile int j = 0; j < 63; j++) {
+						for (volatile int k = 0; k < 6; k++) {
+							cntRS++;
+							if (thinningSignal1[cntRS/*i * 63 * 6 + j * 6 + k*/] == 1){
+								SET_BIT(reedSolomonInput[i][j], k);
+							}
+							else {
+								CLEAR_BIT(reedSolomonInput[i][j], k);
+							}
+						}
+					}
+				}
+				int32_t rs_stat;
+                uint16_t nBytesMsg = 15, nBytesPar = 48;
+                uint8_t lin90[120];
+				for (volatile int i = 0; i < 8; i++) {
+					rs_stat = reedsolomon.MsgDec(&reedSolomonInput[i][0], nBytesMsg, &reedSolomonInput[i][15], nBytesPar);	// декодеруем
+					for (volatile int j = 0; j < 15; j++) {
+						lin90[i * 8 + j] = reedSolomonInput[i][j];
+					}
+				}
+                uint8_t t1,t2,t3;
+				for (volatile int i = 0; i < 30; i++) {
+                    t1 = ((lin90[4 * i + 0] & 0x3F) << 2) + ((lin90[4 * i + 1] & 0x30) >> 4);
+                    t2 = ((lin90[4 * i + 1] & 0x0F) << 4) + ((lin90[4 * i + 2] & 0x3C) >> 2);
+                    t3 = ((lin90[4 * i + 2] & 0x03) << 6) + ((lin90[4 * i + 3] & 0x3F) >> 0);
+					lin90[4 * i + 0] = t1;
+					lin90[4 * i + 1] = t2;
+					lin90[4 * i + 2] = t3;
+                }
+                QVector<int16_t> ba;
+                ba.resize(8*320);
+                for (volatile int i = 0; i < 15; i++) {
+                    codec2_decode(audiocodec,&ba[320*i],&lin90[6*i]);
+                }
+                emit WriteAudioData(ba);
+				thinningSignal1.erase(thinningSignal1.begin(), thinningSignal1.begin() + 3024);
+				thinningSignal2.erase(thinningSignal2.begin(), thinningSignal2.begin() + 3024);
+				stateProc = 0;
+			}
+		}
+		else {
+
+		}
+		//stateProc = 0;
+
+	}
+}
+
 void RecieverData::addNewData(QVector<double> _vec) {
     double sample;
 	complex_double analit_signal;
@@ -131,7 +252,7 @@ void RecieverData::addNewData(QVector<double> _vec) {
 	complex_double res[2];
 	double average;
 	double resD[2];
-	debugDataFile fileData;
+	//debugDataFile fileData;
 	for (volatile int i = 0; i < _vec.size(); i++) {
 		sample = _vec[i];
 
@@ -140,8 +261,8 @@ void RecieverData::addNewData(QVector<double> _vec) {
 		analit_signal.im = Gilbert(sample);
 		analit_signal.re = sample;
 		
-		fileData.analitIm = analit_signal.im;
-		fileData.analitRe = analit_signal.re;
+		//fileData.analitIm = analit_signal.im;
+		//fileData.analitRe = analit_signal.re;
 
 		for (volatile int k = 0; k < freqval.size(); k++) {
 			getWave(k);
@@ -157,21 +278,24 @@ void RecieverData::addNewData(QVector<double> _vec) {
 		if (resD[1] > resD[0])
 			average = 1;
 		else
-			average = 0;
+			average = -1;
 		//average = resD[1] - resD[0];
 
-		fileData.adc = average;
+		//fileData.adc = average;
 
 		counterThinning++;
 		if (counterThinning == 25) {
-			thinningSignal.append(average);
+			thinningSignal1.push_back(average);
 		}
 		if (counterThinning >= 50) {
-			thinningSignal.append(average);
+			thinningSignal2.push_back(average);
 			counterThinning = 0;
 		}
-		debugFileData.append(fileData);
+		//debugFileData.append(fileData);
 		//cmplx = complexMult(analit_signal);
+	}
+	if (thinningSignal2.size() > 300) {
+		processingThinData();
 	}
 
 }

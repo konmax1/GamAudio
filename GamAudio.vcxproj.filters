@@ -52,6 +52,12 @@
     <ClCompile Include="usblnetworkdata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="array.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reedsolomon.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="audioclass.h">
@@ -82,6 +88,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="array.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reedsolomon.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rsparameters.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

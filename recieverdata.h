@@ -5,9 +5,14 @@
 
 
 #include <qmath.h>  
+#include "reedsolomon.h"
+
 
 #define GILBERT_POR     100                      // порядок фильтра
 #define GILBERT_POR2    GILBERT_POR/2           // половина от порядка фильтра
+
+#include "codec2-lib/codec2.h"
+
 
 struct complex_double{
 	double re;
@@ -37,14 +42,20 @@ private:
     qint32 freqSignal;
 	int32_t counterThinning;
 
-	QVector<double> thinningSignal;
+	std::vector<double> thinningSignal1;
+	std::vector<double> thinningSignal2;
 	QVector<debugDataFile> debugFileData;
+    CODEC2 *audiocodec;
 private: //functions
 	void getWave(int channel);
 	void complexMult(complex_double & _in, complex_double & _in2, complex_double & _out);
 	complex_double complexMult(complex_double & _in);
 	complex_double complexSum(std::vector<complex_double>& _vect);
 	double complexAbs(complex_double &_cmplx);
+	double scalar(double &in1, double &in2, int32_t size);
+
+	void processingThinData();
+	RS reedsolomon;
 public:
     RecieverData(QObject *parent = nullptr);
 	~RecieverData();
@@ -63,6 +74,7 @@ public slots:
 signals:
 	void sendChartData(QVector<double> _v1, QVector<double> _v2);
 	void sendChartData(QList< QVector<double> > _v);
+    void WriteAudioData(QVector<qint16> vect);
 };
 
 extern RecieverData recData;

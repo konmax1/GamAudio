@@ -32,6 +32,7 @@ public:
     void setIsActiveAudio(bool &value);
 
 public slots:
-    void WriteAudioData(quint16 nADC, quint16 *mas);
+    void WriteAudioData(QVector<qint16> vect);
+    void WriteAudioData(qint32 nADC, qint16 *mas);
 	void setActiveAudio(bool _active, qint32 _freqD);
 };
